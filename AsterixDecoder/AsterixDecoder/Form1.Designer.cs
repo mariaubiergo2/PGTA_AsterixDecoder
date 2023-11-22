@@ -33,7 +33,6 @@ namespace AsterixDecoder
             this.csvGridView = new System.Windows.Forms.DataGridView();
             this.pictureBoxLogo = new System.Windows.Forms.PictureBox();
             this.title = new System.Windows.Forms.Label();
-            this.viewBtn = new System.Windows.Forms.Button();
             this.viewPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.backPictureBox = new System.Windows.Forms.PictureBox();
             this.playPictureBox = new System.Windows.Forms.PictureBox();
@@ -53,6 +52,7 @@ namespace AsterixDecoder
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.gmap = new GMap.NET.WindowsForms.GMapControl();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.infoLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.csvGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxLogo)).BeginInit();
             this.viewPanel.SuspendLayout();
@@ -91,30 +91,12 @@ namespace AsterixDecoder
             this.title.TabIndex = 5;
             this.title.Text = "label1";
             // 
-            // viewBtn
-            // 
-            this.viewBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.viewBtn.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.viewBtn.Font = new System.Drawing.Font("Cascadia Code", 10F);
-            this.viewBtn.Location = new System.Drawing.Point(3, 2);
-            this.viewBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.viewBtn.MinimumSize = new System.Drawing.Size(69, 33);
-            this.viewBtn.Name = "viewBtn";
-            this.viewBtn.Size = new System.Drawing.Size(85, 33);
-            this.viewBtn.TabIndex = 5;
-            this.viewBtn.Text = "View";
-            this.viewBtn.UseVisualStyleBackColor = false;
-            this.viewBtn.Click += new System.EventHandler(this.viewBtn_Click);
-            // 
             // viewPanel
             // 
             this.viewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.viewPanel.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.viewPanel.Controls.Add(this.viewBtn);
             this.viewPanel.Controls.Add(this.backPictureBox);
             this.viewPanel.Controls.Add(this.playPictureBox);
             this.viewPanel.Controls.Add(this.fowardPictureBox);
@@ -128,7 +110,7 @@ namespace AsterixDecoder
             // 
             // backPictureBox
             // 
-            this.backPictureBox.Location = new System.Drawing.Point(94, 3);
+            this.backPictureBox.Location = new System.Drawing.Point(3, 3);
             this.backPictureBox.Name = "backPictureBox";
             this.backPictureBox.Size = new System.Drawing.Size(83, 29);
             this.backPictureBox.TabIndex = 14;
@@ -136,7 +118,7 @@ namespace AsterixDecoder
             // 
             // playPictureBox
             // 
-            this.playPictureBox.Location = new System.Drawing.Point(183, 3);
+            this.playPictureBox.Location = new System.Drawing.Point(92, 3);
             this.playPictureBox.Name = "playPictureBox";
             this.playPictureBox.Size = new System.Drawing.Size(64, 29);
             this.playPictureBox.TabIndex = 12;
@@ -145,7 +127,7 @@ namespace AsterixDecoder
             // 
             // fowardPictureBox
             // 
-            this.fowardPictureBox.Location = new System.Drawing.Point(253, 3);
+            this.fowardPictureBox.Location = new System.Drawing.Point(162, 3);
             this.fowardPictureBox.Name = "fowardPictureBox";
             this.fowardPictureBox.Size = new System.Drawing.Size(38, 29);
             this.fowardPictureBox.TabIndex = 15;
@@ -160,7 +142,7 @@ namespace AsterixDecoder
             "x 1.5",
             "x 2",
             "x 3"});
-            this.speedDecisionBox.Location = new System.Drawing.Point(297, 3);
+            this.speedDecisionBox.Location = new System.Drawing.Point(206, 3);
             this.speedDecisionBox.Name = "speedDecisionBox";
             this.speedDecisionBox.Size = new System.Drawing.Size(93, 24);
             this.speedDecisionBox.TabIndex = 19;
@@ -168,7 +150,7 @@ namespace AsterixDecoder
             // 
             // hourBox
             // 
-            this.hourBox.Location = new System.Drawing.Point(396, 3);
+            this.hourBox.Location = new System.Drawing.Point(305, 3);
             this.hourBox.Name = "hourBox";
             this.hourBox.Size = new System.Drawing.Size(104, 22);
             this.hourBox.TabIndex = 20;
@@ -303,11 +285,21 @@ namespace AsterixDecoder
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // infoLbl
+            // 
+            this.infoLbl.AutoSize = true;
+            this.infoLbl.Location = new System.Drawing.Point(13, 541);
+            this.infoLbl.Name = "infoLbl";
+            this.infoLbl.Size = new System.Drawing.Size(46, 17);
+            this.infoLbl.TabIndex = 12;
+            this.infoLbl.Text = "label1";
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1205, 604);
+            this.Controls.Add(this.infoLbl);
             this.Controls.Add(this.gmap);
             this.Controls.Add(this.csvGridView);
             this.Controls.Add(this.progressLbl);
@@ -338,7 +330,6 @@ namespace AsterixDecoder
         private System.Windows.Forms.DataGridView csvGridView;
         private System.Windows.Forms.PictureBox pictureBoxLogo;
         private System.Windows.Forms.Label title;
-        private System.Windows.Forms.Button viewBtn;
         private System.Windows.Forms.FlowLayoutPanel viewPanel;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label progressLbl;
@@ -358,6 +349,7 @@ namespace AsterixDecoder
         private System.Windows.Forms.ComboBox speedDecisionBox;
         private System.Windows.Forms.ToolStripMenuItem visualizeCSVFileToolStripMenuItem1;
         private System.Windows.Forms.TextBox hourBox;
+        private System.Windows.Forms.Label infoLbl;
     }
 }
 

@@ -3,9 +3,9 @@ using System.Windows.Forms;
 
 namespace AsterixDecoder
 {
-    public partial class msg : Form
+    public partial class msg_UNUSED : Form
     {
-        public msg(string labelTxt)
+        public msg_UNUSED(string labelTxt)
         {
             InitializeComponent();
 

@@ -74,11 +74,11 @@ namespace AsterixDecoder
             generateCSVgrid();
             n_outputCSV = 0;
 
-            
+            infoLbl.Visible = false;            
 
         }
 
-        //Decoding to CSV
+        //Customize the CSV grid
         private void generateCSVgrid()
         {
             csvGridView.DefaultCellStyle.Font = new Font("Cascadia Code", 11);
@@ -106,7 +106,7 @@ namespace AsterixDecoder
         }
 
         //Decoding to CSV
-        private void decodeAll(string path, int init, int final, string resultFileName)
+        private void decodeAll(string path, int init, int final)
         {
             //Initiate progress bar
             progressBar1.Value = 0;
@@ -115,24 +115,6 @@ namespace AsterixDecoder
 
             //Decodify
             decodify(path, init, final);
-
-            saveIntoCSV(elements, resultFileName);
-
-            //Visualize CSV in the grid
-            string filePath = Path.Combine(this.projectDirectory, resultFileName);
-            csvGridView.DataSource = readCSV(filePath);
-        }
-
-        private void saveIntoCSV(List<CAT048> things, string resultFileName)
-        {
-            //Save CSV
-            string filePath = Path.Combine(this.projectDirectory, resultFileName);
-            using (var writer = new StreamWriter(filePath))
-
-            using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            {
-                csvWriter.WriteRecords<CAT048>(things);
-            }
         }
 
         //Decoding to CSV
@@ -160,10 +142,8 @@ namespace AsterixDecoder
             // Number of total data records in the file
             this.n_datarecord = 0;
 
-
             while (i < message.Length)
             {
-
                 //First octet describes the category of the message
                 byte cat = message[i];
 
@@ -229,85 +209,90 @@ namespace AsterixDecoder
 
         }
 
-        //Decoding to CSV
+        //Reading a CSV file and showing in the DataGridView
         public DataTable readCSV(string filePath)
         {
             DataTable dt = new DataTable();
-            string[] lines = System.IO.File.ReadAllLines(filePath);
-            if (lines.Length > 0)
+            try
             {
-                //first line to create header
-                string firstLine = lines[0];
-                string[] headerLabels = firstLine.Split(',');
-                foreach (string headerWord in headerLabels)
+                string[] lines = System.IO.File.ReadAllLines(filePath);
+                if (lines.Length > 0)
                 {
-                    dt.Columns.Add(new DataColumn(headerWord));
-                }
-                //For Data
-                for (int i = 1; i < lines.Length; i++)
-                {
-                    string pattern = @"(?<=,|^)(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
-                    string[] dataWords = Regex.Split(lines[i], pattern);
-                    DataRow dr = dt.NewRow();
-                    int columnIndex = 0;
-
+                    //first line to create header
+                    string firstLine = lines[0];
+                    string[] headerLabels = firstLine.Split(',');
                     foreach (string headerWord in headerLabels)
                     {
-                        string cleanedItem = dataWords[columnIndex + 1].Trim('"').Trim(',').Replace('"', ' ');
-                        dr[headerWord] = cleanedItem;
-                        columnIndex++;
+                        dt.Columns.Add(new DataColumn(headerWord));
                     }
-                    dt.Rows.Add(dr);
-                }
-            }
-            if (dt.Rows.Count > 0)
-            {
-                csvGridView.DataSource = dt;
-            }
+                    //For Data
+                    for (int i = 1; i < lines.Length; i++)
+                    {
+                        string pattern = @"(?<=,|^)(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
+                        string[] dataWords = Regex.Split(lines[i], pattern);
+                        DataRow dr = dt.NewRow();
+                        int columnIndex = 0;
 
-            return dt;
+                        foreach (string headerWord in headerLabels)
+                        {
+                            string cleanedItem = dataWords[columnIndex + 1].Trim('"').Trim(',').Replace('"', ' ');
+                            dr[headerWord] = cleanedItem;
+                            columnIndex++;
+                        }
+                        dt.Rows.Add(dr);
+                    }
+                }
+                if (dt.Rows.Count > 0)
+                {
+                    csvGridView.DataSource = dt;
+                }
+                return dt;
+            }
+            catch
+            {
+                popUpLabel("Something went wrong... Please, try again!");
+                return dt;
+            }
         }
 
         //Decoding to CSV
         private void cSVToolboxToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Hide simulation stuff
-            viewPanel.Visible = false;
-            gmap.Visible = false;
+            viewHideSimulation(false);
         }
 
         //Decoding to CSV
         private void importBinaryFileToDecodeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Hide simulation stuff
-            viewPanel.Visible = false;
-            gmap.Visible = false;
+            viewHideSimulation(false);
 
-            OpenFileDialog ofd = new OpenFileDialog();
-            using (ofd)
+            try
             {
-                if (ofd.ShowDialog() == DialogResult.OK)
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Filter = "AST File (*.ast)|*.ast|BIN Files (*.bin)|*.bin|All files (*.*)|*.*";
+                using (ofd)
                 {
-                    string path = ofd.FileName.ToString();
+                    if (ofd.ShowDialog() == DialogResult.OK)
+                    {                        
+                        string path = ofd.FileName.ToString();
 
-                    if (elements.Count == 0)
-                    {
-                        decodeAll(path, 0, 0, "output.csv");
-                        n_outputCSV = 1;
+                        decodeAll(path, 0, 0);
+
+                        popUpLabel("Preparing the decoded data items...");
+
+                        //Visualize CSV in the grid
+                        csvGridView.DataSource = elements;
+                        csvGridView.Visible = true;
                     }
-                    else
-                    {
-                        n_outputCSV++;
-                        decodeAll(path, 0, 0, "output" + Convert.ToString(n_outputCSV) + ".csv");
-
-                    }
-
-                    msg message = new msg("Your binary code has been correctly decoded. \nYou can find a CSV file in your bin folder :)");
-                    message.ShowDialog();
-
-                    csvGridView.Visible = true;
                 }
             }
+            catch
+            {
+                popUpLabel("Something went wrong... Please, try again!");
+            }
+            
         }
 
         private void visualizeCSVFileToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -321,14 +306,13 @@ namespace AsterixDecoder
 
                     //Visualize CSV in the grid
                     csvGridView.DataSource = readCSV(path);
-
                     csvGridView.Visible = true;
                 }
             }
         }
 
 
-        //Decoding to CSV
+        //Save to CSV
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -337,32 +321,67 @@ namespace AsterixDecoder
             saveFileDialog.InitialDirectory = this.projectDirectory;
             saveFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
 
-            // Show the dialog and check if the user clicked OK
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                // Get the selected file name
-                string filePath = saveFileDialog.FileName;
-
-                // Your existing code to write to CSV
-                using (var writer = new StreamWriter(filePath))
-                using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                // Show the dialog and check if the user clicked OK
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    csvWriter.WriteRecords<CAT048>(elements);
-                }
+                    // Get the selected file name
+                    string filePath = saveFileDialog.FileName;
 
+                    // Your existing code to write to CSV
+                    using (var writer = new StreamWriter(filePath))
+                    using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                    {
+                        csvWriter.WriteRecords<CAT048>(elements);
+                    }
+
+                    popUpLabel("Your file is correctly saved!");
+
+                }
+            }
+            catch
+            {
+                popUpLabel("Something went wrong... Please, try again!");
             }
 
         }
 
+        public void viewHideSimulation(bool visible)
+        {
+            viewPanel.Visible = visible;
+            gmap.Visible = visible;
+        }
+
+        public void popUpLabel(string text)
+        {
+            var t = new Timer();
+            infoLbl.Text = text;
+            infoLbl.Visible = true;
+            t.Interval = 4000; // it will Tick in 3 seconds
+            t.Tick += (sender, e) =>
+            {
+                infoLbl.Hide();
+                t.Stop();
+            };
+            t.Start();
+        }
+
+
         ///-----------------------------------------SIMULATION-----------------------------------------------
+
+        public void viewHideDecoder(bool visible)
+        {
+            csvGridView.Visible = visible;
+        }
 
         //Simulation
         private void trajectoriesSimulatorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Hide all the other forms
-            csvGridView.Visible = false;
+            viewHideDecoder(false);
 
-            //View all the ones in the simulator
+            //View the simulator keyboard
             viewPanel.Visible = true;
 
             //Keyboard            
@@ -370,17 +389,16 @@ namespace AsterixDecoder
             string imagePath = Path.Combine(this.projectDirectory, "playButton.png");
             playPictureBox.Image = new Bitmap(imagePath);
             playPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
-            playPictureBox.Visible = true;
+
             //Back button
             string imagePath2 = Path.Combine(this.projectDirectory, "backButton.png");
             backPictureBox.Image = new Bitmap(imagePath2);
             backPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
-            backPictureBox.Visible = true;
+
             //Foward button
             string imagePath3 = Path.Combine(this.projectDirectory, "fowardButton.png");
             fowardPictureBox.Image = new Bitmap(imagePath3);
             fowardPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
-            fowardPictureBox.Visible = true;
 
             //Markers overlayed in the map
             markers = new GMapOverlay("markers");
@@ -393,7 +411,7 @@ namespace AsterixDecoder
             gmap.Position = new PointLatLng(41.298, 2.080);
             gmap.MinZoom = 2;
             gmap.MaxZoom = 24;
-            gmap.Zoom = 6;
+            gmap.Zoom = 9;
             gmap.AutoScroll = true;
             gmap.DragButton = MouseButtons.Left;
             gmap.CanDragMap = true;
@@ -402,16 +420,6 @@ namespace AsterixDecoder
 
             speedDecisionBox.SelectedItem = "x 1";
             speedDecisionBox.DropDownStyle = ComboBoxStyle.DropDownList;
-        }
-
-        //JUST TO TEST!!
-        //Simulation
-        private void viewBtn_Click(object sender, EventArgs e)
-        {
-            gmap.Visible = true;
-
-
-            gmap.Overlays.Add(markers);
         }
 
         // Simulation
@@ -551,11 +559,14 @@ namespace AsterixDecoder
             hourBox.Text = this.simulationTime.TimeOfDay.ToString();
             hourBox.Refresh();
 
-                           
+            gmap.Overlays.Remove(markers);
+
             foreach (string id in aircraftsList.Keys)
             {
                 plotTheCurrentDataItemForAGivenTime(id);
-            } 
+            }
+
+            gmap.Overlays.Add(markers);
 
         }
 
@@ -650,7 +661,18 @@ namespace AsterixDecoder
             {
                 if (initialDataItem < aircraftsList[AC_ID].Count)
                 {
-                    found = usefulFunctions.isDateBetween(simulationTime, simulationTime.AddSeconds(timer1.Interval), aircraftsList[AC_ID][initialDataItem].UTCTime);
+                    DateTime from = this.simulationTime;
+                    found = usefulFunctions.isDateBetween(from, from.AddSeconds(timer1.Interval/1000), aircraftsList[AC_ID][initialDataItem].UTCTime);
+                    Console.WriteLine("------");
+                    Console.WriteLine(found);
+                    Console.WriteLine(initialDataItem);
+                    Console.WriteLine("------");
+                    Console.WriteLine("-- From --");
+                    Console.WriteLine(from);
+                    Console.WriteLine("-- List --");
+                    Console.WriteLine(aircraftsList[AC_ID][initialDataItem].UTCTime);
+                    Console.WriteLine("-- To --");
+                    Console.WriteLine(from.AddSeconds(timer1.Interval / 1000));
 
                     if (found)
                     {
@@ -662,6 +684,9 @@ namespace AsterixDecoder
                         if (aircraftsMarkers.ContainsKey(AC_ID))
                         {
                             aircraftsMarkers[AC_ID].Position = newPosition;
+
+                            //Add the marker to the gmap
+                            //markers.Markers.Add(aircraftsMarkers[AC_ID]);
                         }
                         else
                         {
@@ -685,6 +710,15 @@ namespace AsterixDecoder
                 else
                 {
                     found = true;
+                    //try
+                    //{
+                      //  markers.Markers.Remove(aircraftsMarkers[AC_ID]);
+                    //}
+                    //catch
+                    //{
+
+                    //}
+                    
                 }
 
             }

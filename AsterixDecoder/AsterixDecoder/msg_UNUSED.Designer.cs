@@ -1,7 +1,7 @@
 ﻿
 namespace AsterixDecoder
 {
-    partial class msg
+    partial class msg_UNUSED
     {
         /// <summary>
         /// Required designer variable.

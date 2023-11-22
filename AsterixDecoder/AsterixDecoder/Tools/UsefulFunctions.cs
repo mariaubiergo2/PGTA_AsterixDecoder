@@ -345,9 +345,16 @@ namespace AsterixDecoder
 
         public bool isDateBetween(DateTime fromDate, DateTime toDate, DateTime curent)
         {
-            if (fromDate.Date == curent.Date)
+            int result = DateTime.Compare(fromDate, curent);
+
+            if (result < 0)
             {
-                if (fromDate.TimeOfDay <= curent.TimeOfDay && toDate.TimeOfDay >= curent.TimeOfDay)
+                int result2 = DateTime.Compare(curent, toDate);
+                if (result2 < 0)
+                {
+                    return true;
+                }
+                else if (result == 0)
                 {
                     return true;
                 }
@@ -355,6 +362,10 @@ namespace AsterixDecoder
                 {
                     return false;
                 }
+            }
+            else if (result == 0)
+            {
+                return true;
             }
             else
             {
