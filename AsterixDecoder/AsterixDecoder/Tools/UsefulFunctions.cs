@@ -356,7 +356,7 @@ namespace AsterixDecoder
                 }
                 else if (result == 0)
                 {
-                    return true;
+                    return false;
                 }
                 else
                 {
@@ -365,7 +365,8 @@ namespace AsterixDecoder
             }
             else if (result == 0)
             {
-                return true;
+
+                return false;
             }
             else
             {

@@ -460,6 +460,7 @@ namespace AsterixDecoder
                     catch
                     {
                         Console.WriteLine("He petat");
+                        popUpLabel("Something went wrong...");
                     }
 
                 }
@@ -663,19 +664,23 @@ namespace AsterixDecoder
                 {
                     DateTime from = this.simulationTime;
                     found = usefulFunctions.isDateBetween(from, from.AddSeconds(timer1.Interval/1000), aircraftsList[AC_ID][initialDataItem].UTCTime);
-                    Console.WriteLine("------");
-                    Console.WriteLine(found);
-                    Console.WriteLine(initialDataItem);
-                    Console.WriteLine("------");
-                    Console.WriteLine("-- From --");
-                    Console.WriteLine(from);
-                    Console.WriteLine("-- List --");
-                    Console.WriteLine(aircraftsList[AC_ID][initialDataItem].UTCTime);
-                    Console.WriteLine("-- To --");
-                    Console.WriteLine(from.AddSeconds(timer1.Interval / 1000));
+                    
 
                     if (found)
                     {
+                        Console.WriteLine("------");
+                        Console.WriteLine(found);
+                        Console.WriteLine(initialDataItem);
+                        Console.WriteLine(AC_ID);
+                        Console.WriteLine("------");
+                        Console.WriteLine("-- From --");
+                        Console.WriteLine(from);
+                        Console.WriteLine("-- List --");
+                        Console.WriteLine(aircraftsList[AC_ID][initialDataItem].UTCTime);
+                        Console.WriteLine("-- To --");
+                        Console.WriteLine(from.AddSeconds(timer1.Interval / 1000));
+
+
                         double latt = Convert.ToDouble(aircraftsList[AC_ID][initialDataItem].Latitude);
                         double lonn = Convert.ToDouble(aircraftsList[AC_ID][initialDataItem].Longitude);
 
