@@ -87,7 +87,7 @@ namespace AsterixDecoder
             this.title.AutoSize = true;
             this.title.Location = new System.Drawing.Point(924, 487);
             this.title.Name = "title";
-            this.title.Size = new System.Drawing.Size(46, 17);
+            this.title.Size = new System.Drawing.Size(44, 16);
             this.title.TabIndex = 5;
             this.title.Text = "label1";
             // 
@@ -290,7 +290,7 @@ namespace AsterixDecoder
             this.infoLbl.AutoSize = true;
             this.infoLbl.Location = new System.Drawing.Point(13, 541);
             this.infoLbl.Name = "infoLbl";
-            this.infoLbl.Size = new System.Drawing.Size(46, 17);
+            this.infoLbl.Size = new System.Drawing.Size(44, 16);
             this.infoLbl.TabIndex = 12;
             this.infoLbl.Text = "label1";
             // 
@@ -312,6 +312,7 @@ namespace AsterixDecoder
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "MainWindow";
             this.Text = "Asterix Decoder";
+            this.Load += new System.EventHandler(this.MainWindow_Load);
             ((System.ComponentModel.ISupportInitialize)(this.csvGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxLogo)).EndInit();
             this.viewPanel.ResumeLayout(false);

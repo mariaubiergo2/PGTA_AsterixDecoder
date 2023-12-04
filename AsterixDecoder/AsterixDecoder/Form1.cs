@@ -96,6 +96,7 @@ namespace AsterixDecoder
                 BackColor = System.Drawing.Color.White
             };
             csvGridView.BackgroundColor = System.Drawing.Color.White;
+            csvGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             csvGridView.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
             {
                 Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold),
@@ -197,7 +198,14 @@ namespace AsterixDecoder
                     //Funció per a decodificar la cat48 
                     CAT048 element = new CAT048(FSPEC, datablock, i, 0, n_datarecord);
 
-                    this.elements.Add(element);
+                    if (element.TYP == "No detection" || element.TYP == "Single PSR detection"|| element.TYP == "Single SSR detection"|| element.TYP == "SSR+PSR detection")
+                    { }
+                    else if (element.Mode_3A == "7777"){ }
+                    else
+                    {
+                        this.elements.Add(element);
+
+                    }
                 }
 
                 else
@@ -427,7 +435,13 @@ namespace AsterixDecoder
         {
             //Set time
             string simTime = hourBox.Text;
-            this.simulationTime = DateTime.ParseExact(simTime, "HH:mm:ss", null);
+            if (simTime =="")
+            {
+                this.simulationTime = DateTime.ParseExact("08:00:00", "HH:mm:ss", null);
+                hourBox.Text = "08:00:00";
+            }
+            else{this.simulationTime = DateTime.ParseExact(simTime, "HH:mm:ss", null);}
+
 
             //Simulation
             this.playing = false;
@@ -582,14 +596,23 @@ namespace AsterixDecoder
                     string filePath = ofd.FileName.ToString();
 
                     List<CAT048> list;
+                    List<CAT048> sList;
 
                     //Read the CSV
                     using (var reader = new StreamReader(filePath))
                     using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
                         list = csv.GetRecords<CAT048>().ToList();
-                        
-                        Console.WriteLine(list.Count);
+                        sList = list.OrderBy(obj => obj.AC_ID).ToList();
+
+                        //int i = 0;
+                        //while (i < sList.Count)
+                        //{
+                        //    Console.WriteLine(sList[i].AC_ID);
+                        //    i= i + 1;
+                        //}
+
+                        //Console.WriteLine(sList.Count);
                     }
 
                     //Generate a KML file
@@ -604,12 +627,10 @@ namespace AsterixDecoder
                     {
                         writer.WriteStartElement("kml", "http://www.opengis.net/kml/2.2");
                         writer.WriteStartElement("Document");
-
+                        
                         foreach (var item in list)
                         {
-                            Console.WriteLine(item.Latitude);
-                            Console.WriteLine(item.Longitude);
-
+                            
                             writer.WriteStartElement("Placemark");
                             writer.WriteElementString("name", item.AC_ID);
                             writer.WriteElementString("description","Address - "+ item.AC_Adress);
@@ -632,6 +653,92 @@ namespace AsterixDecoder
 
         }
 
+        private void saveTrajectoriesInKMLFormatToolStripMenuItem_Click_copy(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            using (ofd)
+            {
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = ofd.FileName.ToString();
+
+                    List<CAT048> list;
+                    List<CAT048> sortedList;
+
+                    //Read the CSV
+                    using (var reader = new StreamReader(filePath))
+                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                    {
+                        list = csv.GetRecords<CAT048>().ToList();
+                        sortedList = list.OrderBy(obj => obj.AC_ID).ToList();
+
+                        int i = 0;
+                        while (i < sortedList.Count)
+                        {
+                            Console.WriteLine(sortedList[i].AC_ID);
+                            i = i + 1;
+                        }
+
+                        Console.WriteLine(list.Count);
+                    }
+
+
+
+                    //Generate a KML file
+                    var settings = new XmlWriterSettings
+                    {
+                        Indent = true
+                    };
+
+                    string kmlFilePath = Path.Combine(this.projectDirectory, "test.kml");
+
+                    using (var writer = XmlWriter.Create(kmlFilePath, settings))
+                    {
+                        writer.WriteStartElement("kml", "http://www.opengis.net/kml/2.2");
+                        writer.WriteStartElement("Document");
+                        writer.WriteStartElement("Placemark");
+
+
+                        int j = 0;                        
+                        while (j< sortedList.Count)
+                        {
+                            writer.WriteElementString("name", sortedList[j].AC_ID);
+                            writer.WriteElementString("description", "Address - " + sortedList[j].AC_Adress);
+                            writer.WriteStartElement("LineString");
+                            writer.WriteElementString("coordinates", $"{sortedList[j].Longitude.Replace(",", ".")},{sortedList[j].Latitude.Replace(",", ".")}");
+                            j++;
+
+                            while (sortedList[j].AC_ID == sortedList[j-1].AC_ID)
+                            {
+                                writer.WriteString($"{sortedList[j].Longitude.Replace(",", ".")},{sortedList[j].Latitude.Replace(",", ".")}");
+                                j++;                            
+                              
+                            }
+
+                            writer.WriteEndElement(); // End LineString
+                            writer.WriteEndElement(); // End Placemark
+                        }
+
+                        writer.WriteEndElement(); // End Document
+                        writer.WriteEndElement(); // End kml
+                    }
+                }
+
+
+
+
+            }
+
+
+        }
+
+        private void GetPositionsSorted(List<CAT048> list)
+        {
+            var sortedList = list.OrderBy(obj => obj.AC_ID).ToList();             
+
+
+        }
+
         private void speedDecisionBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             string selectedItem = speedDecisionBox.Items[speedDecisionBox.SelectedIndex].ToString();
@@ -639,6 +746,7 @@ namespace AsterixDecoder
             Console.WriteLine(factor);
             int interval = Convert.ToInt32(4000.0m / Convert.ToDecimal(factor));
 
+            //Recorda afefir un zero
             if (interval == 800)
             {
                 interval = interval * 10;
@@ -729,7 +837,10 @@ namespace AsterixDecoder
             }
         }
 
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
 
+        }
     }
 }
 
