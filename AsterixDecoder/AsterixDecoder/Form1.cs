@@ -13,6 +13,7 @@ using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using System.Xml;
+using GMap.NET.WindowsForms.ToolTips;
 
 namespace AsterixDecoder
 {
@@ -34,7 +35,7 @@ namespace AsterixDecoder
         //For a given AC_ID all the CAT048 objects (data items with the necessary info) associated to it in temporal order
         Dictionary<string, List<CAT048_simulation>> aircraftsList;
         //For a given AC_ID the GMapMarker associated to it
-        public Dictionary<string, GMapMarker> aircraftsMarkers;
+        public Dictionary<string, RotatableMarker> aircraftsMarkers;
         //Markers in the map
         GMapOverlay markers;
         //AC icon global for all
@@ -198,13 +199,12 @@ namespace AsterixDecoder
                     //Funció per a decodificar la cat48 
                     CAT048 element = new CAT048(FSPEC, datablock, i, 0, n_datarecord);
 
-                    if (element.TYP == "No detection" || element.TYP == "Single PSR detection"|| element.TYP == "Single SSR detection"|| element.TYP == "SSR+PSR detection")
-                    { }
-                    else if (element.Mode_3A == "7777"){ }
+                    if (element.TYP == "No detection" || element.TYP == "Single PSR detection"|| element.TYP == "Single SSR detection"|| element.TYP == "SSR+PSR detection" || element.Mode_3A == "7777")
+                    { 
+                    }
                     else
                     {
                         this.elements.Add(element);
-
                     }
                 }
 
@@ -366,7 +366,7 @@ namespace AsterixDecoder
             var t = new Timer();
             infoLbl.Text = text;
             infoLbl.Visible = true;
-            t.Interval = 4000; // it will Tick in 3 seconds
+            t.Interval = 1000; // it will Tick in 3 seconds
             t.Tick += (sender, e) =>
             {
                 infoLbl.Hide();
@@ -460,8 +460,9 @@ namespace AsterixDecoder
                         gmap.Visible = true;
 
                         //Generate the dictionary with the AC_ID and its associated marker
-                        aircraftsMarkers = new Dictionary<string, GMapMarker>();
+                        aircraftsMarkers = new Dictionary<string, RotatableMarker>();
 
+                        
                         foreach (string id in aircraftsList.Keys)
                         {
                             plotTheCurrentDataItemForAGivenTime(id);                      
@@ -570,86 +571,84 @@ namespace AsterixDecoder
             this.simulationTime = DateTime.ParseExact(simTime, "HH:mm:ss", null);
 
             //Change hour
-            this.simulationTime = this.simulationTime.AddSeconds(timer1.Interval/1000);
+            this.simulationTime = this.simulationTime.AddSeconds(1); //you just add one second
             hourBox.Text = this.simulationTime.TimeOfDay.ToString();
             hourBox.Refresh();
 
-            gmap.Overlays.Remove(markers);
+            //gmap.Overlays.Remove(markers);
 
             foreach (string id in aircraftsList.Keys)
             {
                 plotTheCurrentDataItemForAGivenTime(id);
             }
 
-            gmap.Overlays.Add(markers);
+            //gmap.Overlays.Add(markers);
 
         }
 
 
         private void saveTrajectoriesInKMLFormatToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            using (ofd)
+            //Generate a KML file
+            var settings = new XmlWriterSettings
             {
-                if (ofd.ShowDialog() == DialogResult.OK)
+                Indent = true
+            };
+
+            string kmlFilePath = Path.Combine(this.projectDirectory, "test.kml");
+            Console.WriteLine(kmlFilePath);
+
+            // Random number generator for colors
+            Random rand = new Random();
+            // Fixed alpha channel value (you can modify this if needed)
+            int alpha = 255;
+
+
+            using (var writer = XmlWriter.Create(kmlFilePath, settings))
+            {
+                writer.WriteStartElement("kml", "http://www.opengis.net/kml/2.2");
+                writer.WriteStartElement("Document");            
+
+                foreach (string AC_ID in aircraftsList.Keys)
                 {
-                    string filePath = ofd.FileName.ToString();
+                    writer.WriteStartElement("Placemark");
+                    writer.WriteElementString("name", AC_ID);
+                    writer.WriteElementString("description", "Address - " + AC_ID);
+                    writer.WriteStartElement("LineString");
+                    writer.WriteStartElement("coordinates");
 
-                    List<CAT048> list;
-                    List<CAT048> sList;
-
-                    //Read the CSV
-                    using (var reader = new StreamReader(filePath))
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                    {
-                        list = csv.GetRecords<CAT048>().ToList();
-                        sList = list.OrderBy(obj => obj.AC_ID).ToList();
-
-                        //int i = 0;
-                        //while (i < sList.Count)
-                        //{
-                        //    Console.WriteLine(sList[i].AC_ID);
-                        //    i= i + 1;
-                        //}
-
-                        //Console.WriteLine(sList.Count);
+                    foreach (CAT048_simulation item in aircraftsList[AC_ID])
+                    {                        
+                        writer.WriteString(item.Longitude.Replace(",", ".") + "," + item.Latitude.Replace(",", ".") + ",0. ");                        
                     }
 
-                    //Generate a KML file
-                    var settings = new XmlWriterSettings
-                    {
-                        Indent = true
-                    };
+                    writer.WriteEndElement(); // End Coordinates
+                    writer.WriteEndElement(); // End LineString
 
-                    string kmlFilePath = Path.Combine(this.projectDirectory, "test.kml");
+                    writer.WriteStartElement("Style");
+                    writer.WriteStartElement("LineStyle");
 
-                    using (var writer = XmlWriter.Create(kmlFilePath, settings))
-                    {
-                        writer.WriteStartElement("kml", "http://www.opengis.net/kml/2.2");
-                        writer.WriteStartElement("Document");
-                        
-                        foreach (var item in list)
-                        {
-                            
-                            writer.WriteStartElement("Placemark");
-                            writer.WriteElementString("name", item.AC_ID);
-                            writer.WriteElementString("description","Address - "+ item.AC_Adress);
-                            writer.WriteStartElement("Point");
-                            writer.WriteElementString("coordinates", $"{item.Longitude.Replace(",", ".")},{item.Latitude.Replace(",", ".")}");
-                            writer.WriteEndElement(); // End Point
-                            writer.WriteEndElement(); // End Placemark
-                        }
+                    int red = rand.Next(256);
+                    int green = rand.Next(256);
+                    int blue = rand.Next(256);                   
 
-                        writer.WriteEndElement(); // End Document
-                        writer.WriteEndElement(); // End kml
-                    }
-                }
+                    // Format the color in the 8-digit HEX format (with alpha channel)
+                    string randomColor = $"#{alpha:x2}{red:x2}{green:x2}{blue:x2}";
 
+                    writer.WriteElementString("color", randomColor);
 
+                    writer.WriteEndElement(); // End Style
+                    writer.WriteEndElement(); // End LineStyle
 
+                    writer.WriteEndElement(); // End Placemark
+                }                       
 
+                writer.WriteEndElement(); // End Document
+                writer.WriteEndElement(); // End kml
+
+                Console.WriteLine("END");
             }
-
+            Console.WriteLine("SUPER END");
 
         }
 
@@ -732,29 +731,18 @@ namespace AsterixDecoder
 
         }
 
-        private void GetPositionsSorted(List<CAT048> list)
-        {
-            var sortedList = list.OrderBy(obj => obj.AC_ID).ToList();             
-
-
-        }
 
         private void speedDecisionBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             string selectedItem = speedDecisionBox.Items[speedDecisionBox.SelectedIndex].ToString();
             string factor = selectedItem.Split(' ')[1];
             Console.WriteLine(factor);
-            int interval = Convert.ToInt32(4000.0m / Convert.ToDecimal(factor));
-
-            //Recorda afefir un zero
-            if (interval == 800)
+            int interval = Convert.ToInt32(1000.0m / Convert.ToDecimal(factor));
+            
+            if (factor == "0.5")
             {
-                interval = interval * 10;
-            }
-            if (interval == 267)
-            {
-                interval = 3000;
-            }
+                interval = 2000;
+            }            
 
             timer1.Interval = interval;
 
@@ -766,77 +754,70 @@ namespace AsterixDecoder
         {
             bool found = false;
             int initialDataItem = 0;
-            while (!found)
-            {
-                if (initialDataItem < aircraftsList[AC_ID].Count)
+            DateTime from = this.simulationTime;
+
+            while (initialDataItem < aircraftsList[AC_ID].Count && !found)
+            {                
+                found = usefulFunctions.isDateBetween(from, from.AddSeconds(1), aircraftsList[AC_ID][initialDataItem].UTCTime); //next second
+
+                if (found)
                 {
-                    DateTime from = this.simulationTime;
-                    found = usefulFunctions.isDateBetween(from, from.AddSeconds(timer1.Interval/1000), aircraftsList[AC_ID][initialDataItem].UTCTime);
-                    
+                    double latt = Convert.ToDouble(aircraftsList[AC_ID][initialDataItem].Latitude);
+                    double lonn = Convert.ToDouble(aircraftsList[AC_ID][initialDataItem].Longitude);
 
-                    if (found)
+                    PointLatLng newPosition = new PointLatLng(latt, lonn);
+
+                    if (aircraftsMarkers.ContainsKey(AC_ID))
                     {
-                        Console.WriteLine("------");
-                        Console.WriteLine(found);
-                        Console.WriteLine(initialDataItem);
-                        Console.WriteLine(AC_ID);
-                        Console.WriteLine("------");
-                        Console.WriteLine("-- From --");
-                        Console.WriteLine(from);
-                        Console.WriteLine("-- List --");
-                        Console.WriteLine(aircraftsList[AC_ID][initialDataItem].UTCTime);
-                        Console.WriteLine("-- To --");
-                        Console.WriteLine(from.AddSeconds(timer1.Interval / 1000));
-
-
-                        double latt = Convert.ToDouble(aircraftsList[AC_ID][initialDataItem].Latitude);
-                        double lonn = Convert.ToDouble(aircraftsList[AC_ID][initialDataItem].Longitude);
-
-                        PointLatLng newPosition = new PointLatLng(latt, lonn);
-
-                        if (aircraftsMarkers.ContainsKey(AC_ID))
-                        {
-                            aircraftsMarkers[AC_ID].Position = newPosition;
-
-                            //Add the marker to the gmap
-                            //markers.Markers.Add(aircraftsMarkers[AC_ID]);
-                        }
-                        else
-                        {
-                            //Generate the bitmap with the aircraft image and its ID
-                            Bitmap bitmap = usefulFunctions.AddTextBelowImage(ACicon, AC_ID);
-
-                            GMapMarker marker = new GMarkerGoogle(
-                                newPosition, //Position
-                                bitmap);
-
-                            //Associate the AC_ID to its marker
-                            aircraftsMarkers.Add(AC_ID, marker);
-
-                            //Add the marker to the gmap
-                            markers.Markers.Add(marker);
-                        }
+                        aircraftsMarkers[AC_ID].Position = newPosition;
+                        aircraftsMarkers[AC_ID].rotate(float.Parse(aircraftsList[AC_ID][initialDataItem].heading));
+                        //Heading goes here
                     }
+                    else
+                    {
+                        //Generate the bitmap with the aircraft image and its ID
+                        Bitmap bitmap = usefulFunctions.AddTextBelowImage(ACicon, AC_ID);
+
+                        GMapMarker marker = new GMarkerGoogle(
+                            newPosition, //Position 
+                            bitmap);
+
+                        RotatableMarker marker2 = new RotatableMarker(newPosition, bitmap, float.Parse(aircraftsList[AC_ID][initialDataItem].heading), AC_ID);
+
+                        //Associate the AC_ID to its marker
+                        aircraftsMarkers.Add(AC_ID, marker2);
+
+                        //markers.Markers.Add(marker);
+                        markers.Markers.Add(marker2);
+                    }
+                }
+                initialDataItem++;
+            }
+
+            if (!found)
+            {
+                Console.WriteLine(found);
+
+                bool aparecera = false;
+                initialDataItem = 0;
+                while (initialDataItem < aircraftsList[AC_ID].Count && !aparecera)
+                {
+                    aparecera = usefulFunctions.isDateBetween(from, from.AddSeconds(8), aircraftsList[AC_ID][initialDataItem].UTCTime);
 
                     initialDataItem++;
                 }
-                else
+                if (!aparecera)
                 {
-                    found = true;
-                    //try
-                    //{
-                      //  markers.Markers.Remove(aircraftsMarkers[AC_ID]);
-                    //}
-                    //catch
-                    //{
-
-                    //}
-                    
+                    if (aircraftsMarkers.ContainsKey(AC_ID))
+                    {
+                        markers.Markers.Remove(aircraftsMarkers[AC_ID]);
+                        aircraftsMarkers.Remove(AC_ID);
+                    }
                 }
-
+                
             }
-        }
 
+        }
         private void MainWindow_Load(object sender, EventArgs e)
         {
 

@@ -70,7 +70,7 @@ namespace AsterixDecoder
             this.csvGridView.Name = "csvGridView";
             this.csvGridView.RowHeadersWidth = 51;
             this.csvGridView.RowTemplate.Height = 24;
-            this.csvGridView.Size = new System.Drawing.Size(1181, 416);
+            this.csvGridView.Size = new System.Drawing.Size(1537, 416);
             this.csvGridView.TabIndex = 3;
             // 
             // pictureBoxLogo
@@ -78,16 +78,16 @@ namespace AsterixDecoder
             this.pictureBoxLogo.Location = new System.Drawing.Point(708, 530);
             this.pictureBoxLogo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBoxLogo.Name = "pictureBoxLogo";
-            this.pictureBoxLogo.Size = new System.Drawing.Size(485, 57);
+            this.pictureBoxLogo.Size = new System.Drawing.Size(842, 57);
             this.pictureBoxLogo.TabIndex = 4;
             this.pictureBoxLogo.TabStop = false;
             // 
             // title
             // 
             this.title.AutoSize = true;
-            this.title.Location = new System.Drawing.Point(924, 487);
+            this.title.Location = new System.Drawing.Point(1362, 476);
             this.title.Name = "title";
-            this.title.Size = new System.Drawing.Size(44, 16);
+            this.title.Size = new System.Drawing.Size(46, 17);
             this.title.TabIndex = 5;
             this.title.Text = "label1";
             // 
@@ -105,7 +105,7 @@ namespace AsterixDecoder
             this.viewPanel.Location = new System.Drawing.Point(13, 461);
             this.viewPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.viewPanel.Name = "viewPanel";
-            this.viewPanel.Size = new System.Drawing.Size(882, 65);
+            this.viewPanel.Size = new System.Drawing.Size(1237, 70);
             this.viewPanel.TabIndex = 9;
             // 
             // backPictureBox
@@ -139,9 +139,11 @@ namespace AsterixDecoder
             this.speedDecisionBox.Items.AddRange(new object[] {
             "x 0.5",
             "x 1",
-            "x 1.5",
             "x 2",
-            "x 3"});
+            "x 5",
+            "x 10",
+            "x 100",
+            "x 200"});
             this.speedDecisionBox.Location = new System.Drawing.Point(206, 3);
             this.speedDecisionBox.Name = "speedDecisionBox";
             this.speedDecisionBox.Size = new System.Drawing.Size(93, 24);
@@ -157,10 +159,10 @@ namespace AsterixDecoder
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(0, 592);
+            this.progressBar1.Location = new System.Drawing.Point(11, 591);
             this.progressBar1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(1205, 10);
+            this.progressBar1.Size = new System.Drawing.Size(1549, 10);
             this.progressBar1.TabIndex = 6;
             // 
             // progressLbl
@@ -249,7 +251,7 @@ namespace AsterixDecoder
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1205, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1560, 28);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -277,7 +279,7 @@ namespace AsterixDecoder
             this.gmap.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Fractional;
             this.gmap.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.gmap.ShowTileGridLines = false;
-            this.gmap.Size = new System.Drawing.Size(1183, 402);
+            this.gmap.Size = new System.Drawing.Size(1549, 402);
             this.gmap.TabIndex = 11;
             this.gmap.Zoom = 0D;
             // 
@@ -290,7 +292,7 @@ namespace AsterixDecoder
             this.infoLbl.AutoSize = true;
             this.infoLbl.Location = new System.Drawing.Point(13, 541);
             this.infoLbl.Name = "infoLbl";
-            this.infoLbl.Size = new System.Drawing.Size(44, 16);
+            this.infoLbl.Size = new System.Drawing.Size(46, 17);
             this.infoLbl.TabIndex = 12;
             this.infoLbl.Text = "label1";
             // 
@@ -298,7 +300,7 @@ namespace AsterixDecoder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1205, 604);
+            this.ClientSize = new System.Drawing.Size(1560, 609);
             this.Controls.Add(this.infoLbl);
             this.Controls.Add(this.gmap);
             this.Controls.Add(this.csvGridView);

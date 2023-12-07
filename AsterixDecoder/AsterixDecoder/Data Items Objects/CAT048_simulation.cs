@@ -13,6 +13,7 @@ namespace AsterixDecoder
         public int Longitude_index { get; }
         public int AC_ID_index { get; }
         public int TAS_index { get; }
+        public int heading_index { get; }
 
         //Variables that define the flight trajectory
         public DateTime UTCTime { get; set; }
@@ -22,6 +23,8 @@ namespace AsterixDecoder
         public string Longitude { get; set; }
         public string AC_ID { get; set; }
         public string TAS { get; set; }
+
+        public string heading { get; set; }
 
 
         public CAT048_simulation()
@@ -65,7 +68,11 @@ namespace AsterixDecoder
                 {
                     this.TAS_index = index;
                 }
-                
+                if (variables[index] == "heading")
+                {
+                    this.heading_index = index;
+                }
+
 
                 index++;
             }
@@ -80,11 +87,7 @@ namespace AsterixDecoder
 
             string time = values[index_object.UTCTime_index + 1].Trim(charsToTrim);
 
-            Console.WriteLine(time);
-
-            this.UTCTime = DateTime.ParseExact(time, "HH:mm:ss:fff", null); ;
-
-            Console.WriteLine(UTCTime);            
+            this.UTCTime = DateTime.ParseExact(time, "HH:mm:ss:fff", null); ;  
 
             this.Latitude = values[index_object.Latitude_index + 1].Trim(charsToTrim);
 
@@ -98,10 +101,9 @@ namespace AsterixDecoder
 
             this.TAS = values[index_object.TAS_index + 1].Trim(charsToTrim);
 
+            this.heading = values[index_object.heading_index + 1].Trim(charsToTrim);
 
         }
-
-
 
     }
 }

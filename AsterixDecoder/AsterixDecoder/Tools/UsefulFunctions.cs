@@ -378,7 +378,7 @@ namespace AsterixDecoder
         public Bitmap AddTextBelowImage(Bitmap originalImage, string text)
         {
             // Function to add text below an image
-            int width = originalImage.Width + 20;
+            int width = originalImage.Width + 30;
             int height = originalImage.Height + 50; // Additional space for text
 
             // Create a new bitmap with the specified width and height
@@ -391,7 +391,7 @@ namespace AsterixDecoder
                 g.DrawImage(originalImage, new Rectangle(0, 0, originalImage.Width, originalImage.Height));
 
                 // Define a font for the text
-                Font font = new Font("Cascadia Code", 11, FontStyle.Regular, GraphicsUnit.Pixel);
+                Font font = new Font("Microsoft Sans Serif", 11, FontStyle.Regular, GraphicsUnit.Pixel);
 
                 // Define the position and color of the text
                 Point textPosition = new Point(0, originalImage.Height);
