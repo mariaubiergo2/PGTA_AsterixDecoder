@@ -374,39 +374,26 @@ namespace AsterixDecoder
             }
         }
 
-        //Simulator
-        public Bitmap AddTextBelowImage(Bitmap originalImage, string text)
+        public string FormatTimeString(string input)
         {
-            // Function to add text below an image
-            int width = originalImage.Width + 30;
-            int height = originalImage.Height + 50; // Additional space for text
+            // Split the input string by colon
+            string[] parts = input.Split(':');
 
-            // Create a new bitmap with the specified width and height
-            Bitmap newBitmap = new Bitmap(width, height);
-
-            // Create a graphics object from the new bitmap
-            using (Graphics g = Graphics.FromImage(newBitmap))
+            if (parts.Length >= 3)
             {
-                // Draw the original image onto the new bitmap
-                g.DrawImage(originalImage, new Rectangle(0, 0, originalImage.Width, originalImage.Height));
+                // Create a new string with the first three parts joined by colon
+                string formattedTime = $"{parts[0]}:{parts[1]}:{parts[2]}";
 
-                // Define a font for the text
-                Font font = new Font("Microsoft Sans Serif", 11, FontStyle.Regular, GraphicsUnit.Pixel);
-
-                // Define the position and color of the text
-                Point textPosition = new Point(0, originalImage.Height);
-                SolidBrush brush = new SolidBrush(Color.Black);
-
-                // Draw the text onto the new bitmap
-                g.DrawString(text, font, brush, textPosition);
+                return formattedTime;
             }
-
-            return newBitmap;
+            else
+            {
+                // Handle invalid input
+                Console.WriteLine("Invalid time format");
+                return null;
+            }
         }
 
     }
-
-    
-
 
 }

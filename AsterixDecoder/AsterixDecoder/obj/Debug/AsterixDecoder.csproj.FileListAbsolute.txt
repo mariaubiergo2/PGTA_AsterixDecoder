@@ -339,7 +339,6 @@ C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_Asterix
 C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_AsterixDecoder - copia - copia\AsterixDecoder\AsterixDecoder\bin\Debug\System.Threading.Tasks.Extensions.xml
 C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_AsterixDecoder - copia - copia\AsterixDecoder\AsterixDecoder\obj\Debug\AsterixDecoder.csproj.AssemblyReference.cache
 C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_AsterixDecoder - copia - copia\AsterixDecoder\AsterixDecoder\obj\Debug\AsterixDecoder.MainWindow.resources
-C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_AsterixDecoder - copia - copia\AsterixDecoder\AsterixDecoder\obj\Debug\AsterixDecoder.msg_UNUSED.resources
 C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_AsterixDecoder - copia - copia\AsterixDecoder\AsterixDecoder\obj\Debug\AsterixDecoder.Properties.Resources.resources
 C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_AsterixDecoder - copia - copia\AsterixDecoder\AsterixDecoder\obj\Debug\AsterixDecoder.csproj.GenerateResource.cache
 C:\Users\Inmaculada\Documents\5A\PGTA\AsterixDecoder\PGTA_AsterixSW\PGTA_AsterixDecoder - copia - copia\AsterixDecoder\AsterixDecoder\obj\Debug\AsterixDecoder.csproj.CoreCompileInputs.cache

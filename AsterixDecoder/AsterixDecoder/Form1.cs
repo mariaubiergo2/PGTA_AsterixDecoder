@@ -49,6 +49,11 @@ namespace AsterixDecoder
         string projectDirectory;
         UsefulFunctions usefulFunctions = new UsefulFunctions();
 
+        bool firstTimeSimOpened;
+
+        bool isSimulating;
+
+        bool endedSimulation;
 
         public MainWindow()
         {
@@ -62,7 +67,7 @@ namespace AsterixDecoder
 
             //Logo
             this.projectDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string filePath = Path.Combine(projectDirectory, "logo.png");
+            string filePath = Path.Combine(projectDirectory, "img/logo.png");
             pictureBoxLogo.LoadAsync(filePath);
             pictureBoxLogo.SizeMode = PictureBoxSizeMode.StretchImage;
 
@@ -70,14 +75,21 @@ namespace AsterixDecoder
             title.Font = new Font("Cascadia Code", 16);
             title.Text = "AsTeRiX DeCoDeR";
             title.TextAlign = ContentAlignment.TopCenter;
+            title.BackColor = Color.Black;
+
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+
 
             //CSV grid 
             generateCSVgrid();
             n_outputCSV = 0;
 
-            infoLbl.Visible = false;            
+            infoLbl.Visible = false;
+            firstTimeSimOpened = true;
 
         }
+
 
         //Customize the CSV grid
         private void generateCSVgrid()
@@ -149,7 +161,6 @@ namespace AsterixDecoder
                 //First octet describes the category of the message
                 byte cat = message[i];
 
-                //Second and third octets are the data record length
                 //Second and third byte equivals to the length of the data record 
                 byte b1 = message[i + 1];
                 byte b2 = message[i + 2];
@@ -157,54 +168,47 @@ namespace AsterixDecoder
                 //Getting the length of the message 
                 int length_dr = b1 << 8 | b2;
 
-                List<byte> datablock = new List<byte>();
-                List<byte> FSPEC = new List<byte>();
-
-                //Identification of the length of each FSPEC. 
-                int j = 1;
-                byte octet = message[i + 3];
-                if (octet % 2 != 0) // This octet is odd (ends in 1) then the next one is included
-                {
-                    // j = 1;
-                    FSPEC.Add(octet);
-                    while (octet % 2 != 0) // The last octet ends in 0 indicating there are no more
-                    {
-                        octet = message[i + 3 + j];
-                        FSPEC.Add(octet);
-                        j++;
-                    }
-                }
-                else
-                {
-                    // j = 1;
-                    FSPEC.Add(octet);
-                }
-
-                //Length of the Asterix record length minus the Cat octet and the 2 length octets 
-                while (j < (length_dr - 3))
-                {
-                    datablock.Add(message[i + j + 3]);
-                    j++;
-                }
-
-                this.n_datarecord++;
-                i = i + length_dr;
-
-                int valProgress = Convert.ToInt32(Convert.ToDouble(i) / message.Length * 100);
-                ReportProgess(valProgress);
-
-
                 if (cat == 48)
                 {
-                    //Funció per a decodificar la cat48 
-                    CAT048 element = new CAT048(FSPEC, datablock, i, 0, n_datarecord);
+                    List<byte> datablock = new List<byte>();
+                    List<byte> FSPEC = new List<byte>();
 
-                    if (element.TYP == "No detection" || element.TYP == "Single PSR detection"|| element.TYP == "Single SSR detection"|| element.TYP == "SSR+PSR detection" || element.Mode_3A == "7777")
-                    { 
+                    //Identification of the length of each FSPEC. 
+                    int j = 1;
+                    byte octet = message[i + 3];
+                    if (octet % 2 != 0) // This octet is odd (ends in 1) then the next one is included
+                    {
+                        // j = 1;
+                        FSPEC.Add(octet);
+                        while (octet % 2 != 0) // The last octet ends in 0 indicating there are no more
+                        {
+                            octet = message[i + 3 + j];
+                            FSPEC.Add(octet);
+                            j++;
+                        }
                     }
                     else
                     {
+                        // j = 1;
+                        FSPEC.Add(octet);
+                    }
+
+                    //Length of the Asterix record length minus the Cat octet and the 2 length octets 
+                    while (j < (length_dr - 3))
+                    {
+                        datablock.Add(message[i + j + 3]);
+                        j++;
+                    }
+
+                    //Funció per a decodificar la cat48 
+                    CAT048 element = new CAT048(FSPEC, datablock, i, 0, n_datarecord);
+
+                    if (element.TYP == "No detection" || element.TYP == "Single PSR detection" || element.TYP == "Single SSR detection" || element.TYP == "SSR+PSR detection" || element.Mode_3A == "7777")
+                    { }
+                    else
+                    {
                         this.elements.Add(element);
+
                     }
                 }
 
@@ -212,6 +216,12 @@ namespace AsterixDecoder
                 {
                     //Passem olimpicament del missatge
                 }
+
+                int valProgress = Convert.ToInt32(Convert.ToDouble(i) / message.Length * 100);
+                ReportProgess(valProgress);
+
+                this.n_datarecord++;
+                i = i + length_dr;
 
             }
 
@@ -258,7 +268,7 @@ namespace AsterixDecoder
             }
             catch
             {
-                popUpLabel("Something went wrong... Please, try again!");
+                popUpLabel("❌ Something went wrong... Please, try again!");
                 return dt;
             }
         }
@@ -268,6 +278,14 @@ namespace AsterixDecoder
         {
             //Hide simulation stuff
             viewHideSimulation(false);
+
+            string imagePath = Path.Combine(this.projectDirectory, "img/playButton.png");
+            playPictureBox.Image = new Bitmap(imagePath);
+            this.playing = false;
+            if (elements.Count != 0)
+            {
+                csvGridView.Visible = true;
+            }
         }
 
         //Decoding to CSV
@@ -275,6 +293,14 @@ namespace AsterixDecoder
         {
             //Hide simulation stuff
             viewHideSimulation(false);
+
+            if (elements.Count != 0)
+            {
+                this.elements = new List<CAT048>();
+                this.aircraftsList = new Dictionary<string, List<CAT048_simulation>>();
+                this.aircraftsMarkers = new Dictionary<string, RotatableMarker>();
+                this.markers = new GMapOverlay("markers");
+            }
 
             try
             {
@@ -288,35 +314,21 @@ namespace AsterixDecoder
 
                         decodeAll(path, 0, 0);
 
-                        popUpLabel("Preparing the decoded data items...");
+                        popUpLabel("⏳ Preparing the decoded data items...");
 
                         //Visualize CSV in the grid
                         csvGridView.DataSource = elements;
                         csvGridView.Visible = true;
                     }
                 }
+
+                this.isSimulating = true;
             }
             catch
             {
-                popUpLabel("Something went wrong... Please, try again!");
+                popUpLabel("❌ Something went wrong... Please, try again!");
             }
             
-        }
-
-        private void visualizeCSVFileToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            using (ofd)
-            {
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    string path = ofd.FileName.ToString();
-
-                    //Visualize CSV in the grid
-                    csvGridView.DataSource = readCSV(path);
-                    csvGridView.Visible = true;
-                }
-            }
         }
 
 
@@ -344,13 +356,20 @@ namespace AsterixDecoder
                         csvWriter.WriteRecords<CAT048>(elements);
                     }
 
-                    popUpLabel("Your file is correctly saved!");
+                    if (elements.Count != 0)
+                    {
+                        popUpLabel("✅ Your file is correctly saved!");
+                    }
+                    else
+                    {
+                        popUpLabel("✅ Your file is correctly saved! Yet is empty.");
+                    }
 
                 }
             }
             catch
             {
-                popUpLabel("Something went wrong... Please, try again!");
+                popUpLabel("❌ Something went wrong... Please, try again!");
             }
 
         }
@@ -366,7 +385,7 @@ namespace AsterixDecoder
             var t = new Timer();
             infoLbl.Text = text;
             infoLbl.Visible = true;
-            t.Interval = 1000; // it will Tick in 3 seconds
+            t.Interval = 3000; // it will Tick in 3 seconds
             t.Tick += (sender, e) =>
             {
                 infoLbl.Hide();
@@ -383,180 +402,231 @@ namespace AsterixDecoder
             csvGridView.Visible = visible;
         }
 
-        //Simulation
+        //To generate the map from the elements decoded.
         private void trajectoriesSimulatorToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            hourBox.ReadOnly = true;
+
             //Hide all the other forms
             viewHideDecoder(false);
 
             //View the simulator keyboard
             viewPanel.Visible = true;
 
-            //Keyboard            
-            //Play button
-            string imagePath = Path.Combine(this.projectDirectory, "playButton.png");
-            playPictureBox.Image = new Bitmap(imagePath);
-            playPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
+            this.endedSimulation = false;
 
-            //Back button
-            string imagePath2 = Path.Combine(this.projectDirectory, "backButton.png");
-            backPictureBox.Image = new Bitmap(imagePath2);
-            backPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
+            if (firstTimeSimOpened)
+            {
+                showTime();
+                
+                hourBox.TextAlign = HorizontalAlignment.Center;
 
-            //Foward button
-            string imagePath3 = Path.Combine(this.projectDirectory, "fowardButton.png");
-            fowardPictureBox.Image = new Bitmap(imagePath3);
-            fowardPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
+                //Keyboard            
+                //Play button
+                string imagePath0 = Path.Combine(this.projectDirectory, "img/playButton.png");
+                playPictureBox.Image = new Bitmap(imagePath0);
+                playPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
 
-            //Markers overlayed in the map
-            markers = new GMapOverlay("markers");
-            this.ACiconSize = 30;
-            string iconPath = Path.Combine(this.projectDirectory, "aircraft_icon.png");
-            ACicon = new Bitmap(new Bitmap(iconPath), new Size(this.ACiconSize, this.ACiconSize));
+                //Back button
+                string imagePath2 = Path.Combine(this.projectDirectory, "img/backButton.png");
+                backPictureBox.Image = new Bitmap(imagePath2);
+                backPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
 
-            //Gmap
-            gmap.MapProvider = GMapProviders.GoogleMap;
-            gmap.Position = new PointLatLng(41.298, 2.080);
-            gmap.MinZoom = 2;
-            gmap.MaxZoom = 24;
-            gmap.Zoom = 9;
-            gmap.AutoScroll = true;
-            gmap.DragButton = MouseButtons.Left;
-            gmap.CanDragMap = true;
+                //Foward button
+                string imagePath3 = Path.Combine(this.projectDirectory, "img/fowardButton.png");
+                fowardPictureBox.Image = new Bitmap(imagePath3);
+                fowardPictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
 
-            Controls.Add(gmap);
+                //Markers overlayed in the map
+                markers = new GMapOverlay("markers");
+                this.ACiconSize = 30;
+                string iconPath = Path.Combine(this.projectDirectory, "img/aircraft_icon.png");
+                ACicon = new Bitmap(new Bitmap(iconPath), new Size(this.ACiconSize, this.ACiconSize));
 
-            speedDecisionBox.SelectedItem = "x 1";
-            speedDecisionBox.DropDownStyle = ComboBoxStyle.DropDownList;
+                //Gmap
+                gmap.MapProvider = GMapProviders.GoogleMap;
+                gmap.Position = new PointLatLng(41.298, 2.080);
+                gmap.MinZoom = 2;
+                gmap.MaxZoom = 24;
+                gmap.Zoom = 9;
+                gmap.AutoScroll = true;
+                gmap.DragButton = MouseButtons.Left;
+                gmap.CanDragMap = true;
+
+                IsMapas.SelectedItem = "Google Maps Callejero";
+
+                Controls.Add(gmap);
+
+                speedDecisionBox.SelectedItem = "x 1";
+                speedDecisionBox.DropDownStyle = ComboBoxStyle.DropDownList;
+
+                firstTimeSimOpened = false;
+            }
+            else
+            {
+                string imagePath = Path.Combine(this.projectDirectory, "img/playButton.png");
+                playPictureBox.Image = new Bitmap(imagePath);
+                this.playing = false;
+
+                timer1.Stop();
+            }
+
+            gmap.Visible = true;
         }
 
-        // Simulation
-        private void visualizeCSVFileToolStripMenuItem_Click(object sender, EventArgs e)
+        public void showTime()
         {
-            //Set time
-            string simTime = hourBox.Text;
-            if (simTime =="")
+            if (elements.Count != 0)
+            {                
+                string t = usefulFunctions.FormatTimeString(elements[0].UTCTime);
+                this.simulationTime = DateTime.ParseExact(t, "HH:mm:ss", null);
+                hourBox.Text = t;
+            }
+            else
             {
                 this.simulationTime = DateTime.ParseExact("08:00:00", "HH:mm:ss", null);
                 hourBox.Text = "08:00:00";
+
+                
             }
-            else{this.simulationTime = DateTime.ParseExact(simTime, "HH:mm:ss", null);}
 
+        }
 
+        public void showEndTime()
+        {
+            if (elements.Count != 0 )
+            {
+                string et = usefulFunctions.FormatTimeString(elements[elements.Count - 1].UTCTime);
+                this.simulationTime = DateTime.ParseExact(et, "HH:mm:ss", null);
+                string pt = (this.simulationTime.AddSeconds(1).ToString());
+                string jt = pt.Split(' ')[1];
+
+                if (Convert.ToInt32(jt.Split(':')[0]) < 10)
+                {
+                    jt = '0' + jt;
+                }
+
+                this.simulationTime = DateTime.ParseExact(jt, "HH:mm:ss", null); 
+                hourBox.Text = jt;
+            }
+            else
+            {
+                this.simulationTime = DateTime.ParseExact("00:00:00", "HH:mm:ss", null);
+                hourBox.Text = "00:00:00";
+
+                popUpLabel("🛠 End simulation button.");
+            }
+
+            
+        }
+
+        private void visualizeCurrentElements()
+        {
             //Simulation
             this.playing = false;
-
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "CSV files (*.csv)|*.csv|XML files (*.xml)|*.xml";
-            using (ofd)
+            if (isSimulating)
             {
-                if (ofd.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    try
+                    //Generate the dictionary with each AC_ID and its list of data items associated
+                    generateACDictionaryFromElements();
+
+                    gmap.Visible = true;
+
+                    //Generate the dictionary with the AC_ID and its associated marker
+                    aircraftsMarkers = new Dictionary<string, RotatableMarker>();
+
+                    foreach (string id in aircraftsList.Keys)
                     {
-                        //Generate the dictionary with each AC_ID and its list of data items associated
-                        generateACDictionary(ofd.FileName);
-
-                        gmap.Visible = true;
-
-                        //Generate the dictionary with the AC_ID and its associated marker
-                        aircraftsMarkers = new Dictionary<string, RotatableMarker>();
-
-                        
-                        foreach (string id in aircraftsList.Keys)
-                        {
-                            plotTheCurrentDataItemForAGivenTime(id);                      
-                        }
-
-                        //First you generate the markers and then you put it in the map
-                        gmap.Overlays.Add(markers);
-
+                        plotTheCurrentDataItemForAGivenTime(id);
                     }
-                    catch
-                    {
-                        Console.WriteLine("He petat");
-                        popUpLabel("Something went wrong...");
-                    }
+
+                    //First you generate the markers and then you put it in the map
+                    gmap.Overlays.Add(markers);
 
                 }
+                catch
+                {
+                    popUpLabel("❌ Something went wrong...");
+                }
+
+                this.isSimulating = false;
             }
+                         
+            
         }
 
-
-        //Simulation
-        public void generateACDictionary(string filename)
+        private void generateACDictionaryFromElements()
         {
-            StreamReader reader = new StreamReader(filename);
-            string first_line = reader.ReadLine();
-            if (first_line != null)
+            aircraftsList = new Dictionary<string, List<CAT048_simulation>>();
+
+            int num = 0;
+            int numlines = elements.Count;
+            foreach (CAT048 rawElement in elements)
             {
-                CAT048_simulation index_object = new CAT048_simulation(first_line);
+                CAT048_simulation aircraft = new CAT048_simulation(rawElement);
 
-                aircraftsList = new Dictionary<string, List<CAT048_simulation>>();
+                int valProgress = Convert.ToInt32(Convert.ToDouble(num) / numlines * 100);
+                ReportProgess(valProgress);
+                num++;
 
-                int numlines = System.IO.File.ReadAllLines(filename).Length;
-                int num = 1;
-                string nextLine = reader.ReadLine();
-                while (nextLine != null)
+                // Check if the AC_ID is already in
+                if (aircraftsList.ContainsKey(aircraft.AC_ID))
                 {
-                    CAT048_simulation aircraft = new CAT048_simulation(nextLine, index_object);
-
-                    int valProgress = Convert.ToInt32(Convert.ToDouble(num) / numlines * 100);
-                    ReportProgess(valProgress);
-                    num++;
-
-                    // Check if the AC_ID is already in
-                    if (aircraftsList.ContainsKey(aircraft.AC_ID))
-                    {
-                        // Add the element to the existing list
-                        aircraftsList[aircraft.AC_ID].Add(aircraft);
-
-                    }
-                    else
-                    {
-                        // If the category doesn't exist, create a new category with the element
-                        aircraftsList.Add(aircraft.AC_ID, new List<CAT048_simulation> { aircraft });
-                    }
-
-                    nextLine = reader.ReadLine();
+                    // Add the element to the existing list
+                    aircraftsList[aircraft.AC_ID].Add(aircraft);
                 }
-
+                else
+                {
+                    // If the category doesn't exist, create a new category with the element
+                    aircraftsList.Add(aircraft.AC_ID, new List<CAT048_simulation> { aircraft });
+                }
             }
-        }
-
-        
+        }       
 
         //Simulator
         private void playPictureBox_Click(object sender, EventArgs e)
         {
-            //If it is playing and you click
-            if (playing)
+            if (elements.Count != 0 && aircraftsList != null)
             {
-                //Not playing any more
-                this.playing = !playing;
+                if (this.endedSimulation)
+                {
+                    this.playing = true;
+                }
+                //If it is playing and you click
+                if (playing)
+                {
+                    //Not playing any more
+                    this.playing = !playing;
 
-                //Now the button tells you to play it again
-                string imagePath = Path.Combine(this.projectDirectory, "playButton.png");
-                playPictureBox.Image = new Bitmap(imagePath);
+                    //Now the button tells you to play it again
+                    string imagePath = Path.Combine(this.projectDirectory, "img/playButton.png");
 
-                timer1.Stop();
+                    playPictureBox.Image = new Bitmap(imagePath);
+
+                    timer1.Stop();
+                }
+                else
+                {
+                    this.playing = !playing;
+                    //Play button
+                    string imagePath = Path.Combine(this.projectDirectory, "img/pauseButton.png");
+                    playPictureBox.Image = new Bitmap(imagePath);
+
+                    //Set timer interval
+                    speedDecisionBox_SelectedIndexChanged(sender, e);
+
+                    timer1.Start();
+
+                    //Set time
+                    string simTime = hourBox.Text;
+                    this.simulationTime = DateTime.ParseExact(simTime, "HH:mm:ss", null);
+
+                }
             }
             else
             {
-                this.playing = !playing;
-                //Play button
-                string imagePath = Path.Combine(this.projectDirectory, "pauseButton.png");
-                playPictureBox.Image = new Bitmap(imagePath);
-
-                //Set timer interval
-                speedDecisionBox_SelectedIndexChanged(sender, e);
-
-                timer1.Start();
-
-                //Set time
-                string simTime = hourBox.Text;
-                this.simulationTime = DateTime.ParseExact(simTime, "HH:mm:ss", null);
-
+                popUpLabel("🛠 Unavailable! You need to 'Trajectories simulator > Simulate' \nafter decoding the desired binary file.");
             }
 
         }
@@ -575,168 +645,114 @@ namespace AsterixDecoder
             hourBox.Text = this.simulationTime.TimeOfDay.ToString();
             hourBox.Refresh();
 
-            //gmap.Overlays.Remove(markers);
-
             foreach (string id in aircraftsList.Keys)
             {
                 plotTheCurrentDataItemForAGivenTime(id);
             }
 
-            //gmap.Overlays.Add(markers);
+            if (markers.Markers.Count == 0)
+            {
+                timer1.Stop();
+                popUpLabel("✅ End of simulation");
+            }
 
         }
 
-
+        //Save the current simulated flights into a KML
         private void saveTrajectoriesInKMLFormatToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Generate a KML file
-            var settings = new XmlWriterSettings
-            {
-                Indent = true
-            };
 
-            string kmlFilePath = Path.Combine(this.projectDirectory, "test.kml");
-            Console.WriteLine(kmlFilePath);
+            if (elements.Count != 0 && aircraftsList!= null)
+            {             
+                // Create a SaveFileDialog
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "KML files (*.kml)|*.kml|All files (*.*)|*.*";
+                saveFileDialog.Title = "Save KML File";
 
-            // Random number generator for colors
-            Random rand = new Random();
-            // Fixed alpha channel value (you can modify this if needed)
-            int alpha = 255;
+                // Show the dialog and get the user's response
+                DialogResult result = saveFileDialog.ShowDialog();
 
-
-            using (var writer = XmlWriter.Create(kmlFilePath, settings))
-            {
-                writer.WriteStartElement("kml", "http://www.opengis.net/kml/2.2");
-                writer.WriteStartElement("Document");            
-
-                foreach (string AC_ID in aircraftsList.Keys)
+                // If the user clicked OK
+                if (result == DialogResult.OK)
                 {
-                    writer.WriteStartElement("Placemark");
-                    writer.WriteElementString("name", AC_ID);
-                    writer.WriteElementString("description", "Address - " + AC_ID);
-                    writer.WriteStartElement("LineString");
-                    writer.WriteStartElement("coordinates");
+                    // Get the selected file name and path
+                    string kmlFilePath = saveFileDialog.FileName;
 
-                    foreach (CAT048_simulation item in aircraftsList[AC_ID])
-                    {                        
-                        writer.WriteString(item.Longitude.Replace(",", ".") + "," + item.Latitude.Replace(",", ".") + ",0. ");                        
-                    }
-
-                    writer.WriteEndElement(); // End Coordinates
-                    writer.WriteEndElement(); // End LineString
-
-                    writer.WriteStartElement("Style");
-                    writer.WriteStartElement("LineStyle");
-
-                    int red = rand.Next(256);
-                    int green = rand.Next(256);
-                    int blue = rand.Next(256);                   
-
-                    // Format the color in the 8-digit HEX format (with alpha channel)
-                    string randomColor = $"#{alpha:x2}{red:x2}{green:x2}{blue:x2}";
-
-                    writer.WriteElementString("color", randomColor);
-
-                    writer.WriteEndElement(); // End Style
-                    writer.WriteEndElement(); // End LineStyle
-
-                    writer.WriteEndElement(); // End Placemark
-                }                       
-
-                writer.WriteEndElement(); // End Document
-                writer.WriteEndElement(); // End kml
-
-                Console.WriteLine("END");
-            }
-            Console.WriteLine("SUPER END");
-
-        }
-
-        private void saveTrajectoriesInKMLFormatToolStripMenuItem_Click_copy(object sender, EventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            using (ofd)
-            {
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    string filePath = ofd.FileName.ToString();
-
-                    List<CAT048> list;
-                    List<CAT048> sortedList;
-
-                    //Read the CSV
-                    using (var reader = new StreamReader(filePath))
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                    {
-                        list = csv.GetRecords<CAT048>().ToList();
-                        sortedList = list.OrderBy(obj => obj.AC_ID).ToList();
-
-                        int i = 0;
-                        while (i < sortedList.Count)
-                        {
-                            Console.WriteLine(sortedList[i].AC_ID);
-                            i = i + 1;
-                        }
-
-                        Console.WriteLine(list.Count);
-                    }
-
-
-
-                    //Generate a KML file
+                    // Generate a KML file
                     var settings = new XmlWriterSettings
                     {
                         Indent = true
                     };
 
-                    string kmlFilePath = Path.Combine(this.projectDirectory, "test.kml");
+                    // Random number generator for colors
+                    Random rand = new Random();
+                    // Fixed alpha channel value (you can modify this if needed)
+                    int alpha = 255;
 
                     using (var writer = XmlWriter.Create(kmlFilePath, settings))
                     {
                         writer.WriteStartElement("kml", "http://www.opengis.net/kml/2.2");
                         writer.WriteStartElement("Document");
-                        writer.WriteStartElement("Placemark");
 
-
-                        int j = 0;                        
-                        while (j< sortedList.Count)
+                        foreach (string AC_ID in aircraftsList.Keys)
                         {
-                            writer.WriteElementString("name", sortedList[j].AC_ID);
-                            writer.WriteElementString("description", "Address - " + sortedList[j].AC_Adress);
+                            writer.WriteStartElement("Placemark");
+                            writer.WriteElementString("name", AC_ID);
+                            writer.WriteElementString("description", 
+                                "Address - " + aircraftsList[AC_ID][0].AC_Adress + " - " +
+                                "Mode 3A - " + aircraftsList[AC_ID][0].Mode_3A + " - " +
+                                "TYP020 - " + aircraftsList[AC_ID][0].TYP);
                             writer.WriteStartElement("LineString");
-                            writer.WriteElementString("coordinates", $"{sortedList[j].Longitude.Replace(",", ".")},{sortedList[j].Latitude.Replace(",", ".")}");
-                            j++;
+                            writer.WriteElementString("altitudeMode", "absolute");
+                            writer.WriteStartElement("coordinates");
 
-                            while (sortedList[j].AC_ID == sortedList[j-1].AC_ID)
+                            foreach (CAT048_simulation item in aircraftsList[AC_ID])
                             {
-                                writer.WriteString($"{sortedList[j].Longitude.Replace(",", ".")},{sortedList[j].Latitude.Replace(",", ".")}");
-                                j++;                            
-                              
+                                writer.WriteString(item.Longitude.Replace(",", ".") + "," + item.Latitude.Replace(",", ".") + "," + item.Flight_Level.Replace(",", ".") + " ");
                             }
 
+                            writer.WriteEndElement(); // End Coordinates
                             writer.WriteEndElement(); // End LineString
+
+                            writer.WriteStartElement("Style");
+                            writer.WriteStartElement("LineStyle");
+
+                            int red = rand.Next(256);
+                            int green = rand.Next(256);
+                            int blue = rand.Next(256);
+
+                            // Format the color in the 8-digit HEX format (with alpha channel)
+                            string randomColor = $"#{alpha:x2}{red:x2}{green:x2}{blue:x2}";
+
+                            writer.WriteElementString("color", randomColor);
+
+                            writer.WriteEndElement(); // End Style
+                            writer.WriteEndElement(); // End LineStyle
+
                             writer.WriteEndElement(); // End Placemark
                         }
 
                         writer.WriteEndElement(); // End Document
                         writer.WriteEndElement(); // End kml
+
                     }
+
+                    popUpLabel("✅ KML file saved to: " + kmlFilePath);
                 }
 
-
-
-
             }
-
+            else
+            {
+                popUpLabel("❌ No KML to save, first decode and simulate.");
+            }
 
         }
 
-
+        //Change velocity
         private void speedDecisionBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             string selectedItem = speedDecisionBox.Items[speedDecisionBox.SelectedIndex].ToString();
             string factor = selectedItem.Split(' ')[1];
-            Console.WriteLine(factor);
             int interval = Convert.ToInt32(1000.0m / Convert.ToDecimal(factor));
             
             if (factor == "0.5")
@@ -745,8 +761,6 @@ namespace AsterixDecoder
             }            
 
             timer1.Interval = interval;
-
-            Console.WriteLine(timer1.Interval);
         }
 
 
@@ -771,18 +785,10 @@ namespace AsterixDecoder
                     {
                         aircraftsMarkers[AC_ID].Position = newPosition;
                         aircraftsMarkers[AC_ID].rotate(float.Parse(aircraftsList[AC_ID][initialDataItem].heading));
-                        //Heading goes here
                     }
                     else
                     {
-                        //Generate the bitmap with the aircraft image and its ID
-                        Bitmap bitmap = usefulFunctions.AddTextBelowImage(ACicon, AC_ID);
-
-                        GMapMarker marker = new GMarkerGoogle(
-                            newPosition, //Position 
-                            bitmap);
-
-                        RotatableMarker marker2 = new RotatableMarker(newPosition, bitmap, float.Parse(aircraftsList[AC_ID][initialDataItem].heading), AC_ID);
+                        RotatableMarker marker2 = new RotatableMarker(newPosition, ACicon, float.Parse(aircraftsList[AC_ID][initialDataItem].heading), AC_ID);
 
                         //Associate the AC_ID to its marker
                         aircraftsMarkers.Add(AC_ID, marker2);
@@ -796,8 +802,6 @@ namespace AsterixDecoder
 
             if (!found)
             {
-                Console.WriteLine(found);
-
                 bool aparecera = false;
                 initialDataItem = 0;
                 while (initialDataItem < aircraftsList[AC_ID].Count && !aparecera)
@@ -820,6 +824,94 @@ namespace AsterixDecoder
         }
         private void MainWindow_Load(object sender, EventArgs e)
         {
+
+        }
+
+        private void IsMapas_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (IsMapas.Text == "Google Maps Satélite")
+                gmap.MapProvider = GMapProviders.GoogleSatelliteMap;
+            if (IsMapas.Text == "Google Maps Callejero")
+                gmap.MapProvider = GMapProviders.GoogleMap;
+            if (IsMapas.Text == "Google Maps Híbrido")
+                gmap.MapProvider = GMapProviders.GoogleHybridMap;
+            if (IsMapas.Text == "OpenStreetMap")
+                gmap.MapProvider = GMapProviders.OpenStreetMap;
+            if (IsMapas.Text == "OpenCycleMap")
+                gmap.MapProvider = GMapProviders.OpenCycleMap;
+
+            gmap.Refresh();
+
+        }
+
+        private void backPictureBox_Click(object sender, EventArgs e)
+        {
+            showTime();
+
+            this.playing = false;
+            string imagePath = Path.Combine(this.projectDirectory, "img/playButton.png");
+            playPictureBox.Image = new Bitmap(imagePath);
+            timer1.Stop();
+
+            if (elements.Count != 0 && aircraftsList != null)
+            {
+                foreach (string id in aircraftsList.Keys)
+                {
+                    plotTheCurrentDataItemForAGivenTime(id);
+                }
+            }
+            else
+            {
+                popUpLabel("🛠 Restart simulation button.");
+            }
+
+            this.endedSimulation = false;
+
+            gmap.Refresh();
+            
+        }
+
+        private void fowardPictureBox_Click(object sender, EventArgs e)
+        {
+            showEndTime();
+
+            this.playing = false;
+            string imagePath = Path.Combine(this.projectDirectory, "img/playButton.png");
+            playPictureBox.Image = new Bitmap(imagePath);
+            timer1.Stop();
+
+            if (elements.Count != 0 && aircraftsList != null)
+            {
+                foreach (string id in aircraftsList.Keys)
+                {
+                    plotTheCurrentDataItemForAGivenTime(id);
+                }
+
+                popUpLabel("✅ End of simulation");
+            }
+
+            this.endedSimulation = true;
+
+            gmap.Refresh();
+
+        }
+
+        private void simulateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            trajectoriesSimulatorToolStripMenuItem_Click(sender, e);
+
+            //Set initial time
+            showTime();
+
+            visualizeCurrentElements();
+            if (elements.Count == 0)
+            {
+                popUpLabel("🔎 There is nothing to simulate, first decode.");
+            }
+
+            string imagePath = Path.Combine(this.projectDirectory, "img/playButton.png");
+            playPictureBox.Image = new Bitmap(imagePath);
+            this.playing = false;
 
         }
     }

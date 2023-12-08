@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using GMap.NET;
 using GMap.NET.WindowsForms;
 
@@ -12,7 +13,7 @@ namespace AsterixDecoder
     public class RotatableMarker : GMapMarker
     {
         private Bitmap rotatedBitmap;
-        private string text;
+        public string text;
         private readonly Bitmap originalBitmap;
 
         public RotatableMarker(PointLatLng position, Bitmap originalBitmap, float rotationAngle, string text)
@@ -26,6 +27,15 @@ namespace AsterixDecoder
         public override void OnRender(Graphics g)
         {
             g.DrawImage(rotatedBitmap, LocalPosition.X, LocalPosition.Y, rotatedBitmap.Width, rotatedBitmap.Height);
+
+            // Draw the text below the rotated bitmap
+            float textWidth = g.MeasureString(text, SystemFonts.DefaultFont).Width;
+            float textHeight = g.MeasureString(text, SystemFonts.DefaultFont).Height;
+
+            float textX = LocalPosition.X + (rotatedBitmap.Width - textWidth) / 2;
+            float textY = LocalPosition.Y + rotatedBitmap.Height + 5; // Adjust the distance between the image and text as needed
+
+            g.DrawString(text, SystemFonts.DefaultFont, Brushes.Black, textX, textY);
         }
 
         private Bitmap RotateImage(Bitmap original, float angle)
@@ -53,6 +63,9 @@ namespace AsterixDecoder
             //rotatedBitmap.Dispose(); // Dispose the existing rotated bitmap
             rotatedBitmap = rotated; // Assign the new rotated bitmap
         }
+
+        
+
     }
 
 }

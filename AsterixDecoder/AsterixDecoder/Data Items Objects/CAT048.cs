@@ -48,6 +48,7 @@ namespace AsterixDecoder
         public string G090 { get; set; }
 
         public string Flight_Level { get; set; }
+        public string ModeC_corrected { get; set; }
 
         //Height Measured by a 3D Radar (110)
         public string Height_3D { get; set; }
@@ -1221,7 +1222,7 @@ namespace AsterixDecoder
             string LatRadar = Convert.ToString(useful_functions.minutes2decimalDegrees(41.0, 18.0, 2.5283, 1.0));
             string lonRadar = Convert.ToString(useful_functions.minutes2decimalDegrees(2.0, 6.0, 7.4095, 1.0));
             double elTerrain = 2.007;
-            double elAntena = 25.25 + elTerrain;
+            double elAntena = 25.25;
 
             //Get radar coordinates 
             CoordinatesWGS84 radarPos = new CoordinatesWGS84(LatRadar, lonRadar, elTerrain);
@@ -1231,6 +1232,7 @@ namespace AsterixDecoder
             double YR = Convert.ToDouble(this.RHO) * 1852.0 * Math.Cos(Convert.ToDouble(this.THETA) * Math.PI / 180.0);
 
             double H = 0;
+            double h_corrected = 0;
 
             if (this.Flight_Level != null)
             {
@@ -1246,18 +1248,27 @@ namespace AsterixDecoder
                 {
                     if (this.BP != null)
                     {
-                        H = H + (Convert.ToDouble(this.BP) - 1013.25) * 30;
+                        H = (H + (Convert.ToDouble(this.BP) - 1013.25) * 30);
+                        h_corrected = H;
                     }
                     else
                     {
-
+                        H = 0;
                     }
 
                 }
-                H = H * 0.3048; //To meters
+            }
+            if (h_corrected != 0)
+            {
+                this.ModeC_corrected = Convert.ToString(Math.Round(h_corrected, 2));
 
             }
+            else
+            {
+                this.ModeC_corrected = " ";
+            }
 
+            H = H * 0.3048; //to meters
             //Get the spherical coordinates of the radar (SR5 transformation) = rho, azimut and elevation
             double rhoMeters = Math.Sqrt(XR * XR + YR * YR);
             double azimutRad = GeoUtils.CalculateAzimuth(XR, YR);
