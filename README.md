@@ -62,8 +62,9 @@ It can be saved in any folder as a .csv file.
 
 
 
-# ASTERIX Ejecutable Instructions
+# ASTERIX Executable Instructions
 
+_This is a message for the teachers, who have the Drive access_
 Due to severals technical issues, we can not provide you with a stable version of the setup. However, in the "Ejecutable - AsterixDecoderApp" folder you will find the "AsterixDecoder" application file, which has a different icon:
 
 
