@@ -20,3 +20,11 @@ _Authors: Júlia Capella Campdepadrós, Paula Chalé Castell, Laia Costa Cid, Bi
    - Functionality to export flight trajectories to a KML file.
    - The KML file includes fight level or corrected height.
    - Foreach path in the KML the viewer can see the A/C ID, address, Mode 3A and TYP020.
+
+## User guide
+
+1. **Import the binary file:**
+![image](https://github.com/mariaubiergo2/PGTA_AsterixDecoder/assets/91792580/9c517dd6-e865-4ee5-a67a-d71e77291af4)
+Any .AST, .BIN or file can be uploaded. The result is shown in the same screen.
+2. **Save in a CSV:**
+It can be saved in any folder as a .csv file.
