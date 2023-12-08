@@ -294,14 +294,6 @@ namespace AsterixDecoder
             //Hide simulation stuff
             viewHideSimulation(false);
 
-            if (elements.Count != 0)
-            {
-                this.elements = new List<CAT048>();
-                this.aircraftsList = new Dictionary<string, List<CAT048_simulation>>();
-                this.aircraftsMarkers = new Dictionary<string, RotatableMarker>();
-                this.markers = new GMapOverlay("markers");
-            }
-
             try
             {
                 OpenFileDialog ofd = new OpenFileDialog();
@@ -309,7 +301,18 @@ namespace AsterixDecoder
                 using (ofd)
                 {
                     if (ofd.ShowDialog() == DialogResult.OK)
-                    {                        
+                    {
+                        if (elements.Count != 0)
+                        {
+                            this.elements = new List<CAT048>();
+                            this.aircraftsList = new Dictionary<string, List<CAT048_simulation>>();
+                            this.aircraftsMarkers = new Dictionary<string, RotatableMarker>();
+                            gmap.Overlays.Remove(markers);
+                            this.markers = new GMapOverlay("markers");
+                            showTime();
+                        }
+
+
                         string path = ofd.FileName.ToString();
 
                         decodeAll(path, 0, 0);
@@ -487,7 +490,6 @@ namespace AsterixDecoder
                 this.simulationTime = DateTime.ParseExact("08:00:00", "HH:mm:ss", null);
                 hourBox.Text = "08:00:00";
 
-                
             }
 
         }
@@ -566,21 +568,26 @@ namespace AsterixDecoder
             {
                 CAT048_simulation aircraft = new CAT048_simulation(rawElement);
 
-                int valProgress = Convert.ToInt32(Convert.ToDouble(num) / numlines * 100);
-                ReportProgess(valProgress);
-                num++;
+                //if (aircraft.AC_ID != "N/A")
+                //{
+                    int valProgress = Convert.ToInt32(Convert.ToDouble(num) / numlines * 100);
+                    ReportProgess(valProgress);
+                    num++;
 
-                // Check if the AC_ID is already in
-                if (aircraftsList.ContainsKey(aircraft.AC_ID))
-                {
-                    // Add the element to the existing list
-                    aircraftsList[aircraft.AC_ID].Add(aircraft);
-                }
-                else
-                {
-                    // If the category doesn't exist, create a new category with the element
-                    aircraftsList.Add(aircraft.AC_ID, new List<CAT048_simulation> { aircraft });
-                }
+                    // Check if the AC_ID is already in
+                    if (aircraftsList.ContainsKey(aircraft.AC_ID))
+                    {
+                        // Add the element to the existing list
+                        aircraftsList[aircraft.AC_ID].Add(aircraft);
+                    }
+                    else
+                    {
+                        // If the category doesn't exist, create a new category with the element
+                        aircraftsList.Add(aircraft.AC_ID, new List<CAT048_simulation> { aircraft });
+                    }
+                //}
+
+                
             }
         }       
 

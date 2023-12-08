@@ -30,6 +30,7 @@ namespace AsterixDecoder
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.csvGridView = new System.Windows.Forms.DataGridView();
             this.pictureBoxLogo = new System.Windows.Forms.PictureBox();
             this.title = new System.Windows.Forms.Label();
@@ -89,7 +90,7 @@ namespace AsterixDecoder
             this.title.ForeColor = System.Drawing.Color.Transparent;
             this.title.Location = new System.Drawing.Point(1249, 476);
             this.title.Name = "title";
-            this.title.Size = new System.Drawing.Size(44, 16);
+            this.title.Size = new System.Drawing.Size(46, 17);
             this.title.TabIndex = 5;
             this.title.Text = "label1";
             // 
@@ -214,7 +215,7 @@ namespace AsterixDecoder
             this.infoLbl.Font = new System.Drawing.Font("Cascadia Code", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.infoLbl.Location = new System.Drawing.Point(13, 541);
             this.infoLbl.Name = "infoLbl";
-            this.infoLbl.Size = new System.Drawing.Size(76, 24);
+            this.infoLbl.Size = new System.Drawing.Size(78, 25);
             this.infoLbl.TabIndex = 12;
             this.infoLbl.Text = "label1";
             // 
@@ -347,6 +348,7 @@ namespace AsterixDecoder
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.viewPanel);
             this.Controls.Add(this.flowLayoutPanel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "MainWindow";
