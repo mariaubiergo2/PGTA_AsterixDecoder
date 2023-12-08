@@ -147,7 +147,7 @@ namespace AsterixDecoder
 
         }
 
-        public CAT048(List<byte> FSFEC, List<byte> datablock, int msg_length, int datalength, int num)
+        public CAT048(List<byte> FSFEC, List<byte> datablock, int datalength, int num)
         {
             useful_functions = new UsefulFunctions();
             this.NUM = Convert.ToString(num);

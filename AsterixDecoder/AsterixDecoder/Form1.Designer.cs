@@ -41,7 +41,6 @@ namespace AsterixDecoder
             this.trajectoriesSimulatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.simulateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveTrajectoriesInKMLFormatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fAQsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.gmap = new GMap.NET.WindowsForms.GMapControl();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -90,7 +89,7 @@ namespace AsterixDecoder
             this.title.ForeColor = System.Drawing.Color.Transparent;
             this.title.Location = new System.Drawing.Point(1249, 476);
             this.title.Name = "title";
-            this.title.Size = new System.Drawing.Size(46, 17);
+            this.title.Size = new System.Drawing.Size(44, 16);
             this.title.TabIndex = 5;
             this.title.Text = "label1";
             // 
@@ -119,7 +118,7 @@ namespace AsterixDecoder
             this.saveAsToolStripMenuItem});
             this.cSVToolboxToolStripMenuItem.Font = new System.Drawing.Font("Cascadia Code", 9F);
             this.cSVToolboxToolStripMenuItem.Name = "cSVToolboxToolStripMenuItem";
-            this.cSVToolboxToolStripMenuItem.Size = new System.Drawing.Size(122, 26);
+            this.cSVToolboxToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
             this.cSVToolboxToolStripMenuItem.Text = "CSV toolbox";
             this.cSVToolboxToolStripMenuItem.Click += new System.EventHandler(this.cSVToolboxToolStripMenuItem_Click);
             // 
@@ -144,7 +143,7 @@ namespace AsterixDecoder
             this.saveTrajectoriesInKMLFormatToolStripMenuItem});
             this.trajectoriesSimulatorToolStripMenuItem.Font = new System.Drawing.Font("Cascadia Code", 9F);
             this.trajectoriesSimulatorToolStripMenuItem.Name = "trajectoriesSimulatorToolStripMenuItem";
-            this.trajectoriesSimulatorToolStripMenuItem.Size = new System.Drawing.Size(221, 26);
+            this.trajectoriesSimulatorToolStripMenuItem.Size = new System.Drawing.Size(221, 24);
             this.trajectoriesSimulatorToolStripMenuItem.Text = "Trajectories simulator";
             this.trajectoriesSimulatorToolStripMenuItem.Click += new System.EventHandler(this.trajectoriesSimulatorToolStripMenuItem_Click);
             // 
@@ -162,25 +161,17 @@ namespace AsterixDecoder
             this.saveTrajectoriesInKMLFormatToolStripMenuItem.Text = "Save trajectories in KML format";
             this.saveTrajectoriesInKMLFormatToolStripMenuItem.Click += new System.EventHandler(this.saveTrajectoriesInKMLFormatToolStripMenuItem_Click);
             // 
-            // fAQsToolStripMenuItem
-            // 
-            this.fAQsToolStripMenuItem.Font = new System.Drawing.Font("Cascadia Code", 9F);
-            this.fAQsToolStripMenuItem.Name = "fAQsToolStripMenuItem";
-            this.fAQsToolStripMenuItem.Size = new System.Drawing.Size(59, 26);
-            this.fAQsToolStripMenuItem.Text = "FAQs";
-            // 
             // menuStrip1
             // 
             this.menuStrip1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cSVToolboxToolStripMenuItem,
-            this.trajectoriesSimulatorToolStripMenuItem,
-            this.fAQsToolStripMenuItem});
+            this.trajectoriesSimulatorToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1560, 30);
+            this.menuStrip1.Size = new System.Drawing.Size(1560, 28);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -223,7 +214,7 @@ namespace AsterixDecoder
             this.infoLbl.Font = new System.Drawing.Font("Cascadia Code", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.infoLbl.Location = new System.Drawing.Point(13, 541);
             this.infoLbl.Name = "infoLbl";
-            this.infoLbl.Size = new System.Drawing.Size(78, 25);
+            this.infoLbl.Size = new System.Drawing.Size(76, 24);
             this.infoLbl.TabIndex = 12;
             this.infoLbl.Text = "label1";
             // 
@@ -383,7 +374,6 @@ namespace AsterixDecoder
         private System.Windows.Forms.Label progressLbl;
         private System.Windows.Forms.ToolStripMenuItem cSVToolboxToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem trajectoriesSimulatorToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem fAQsToolStripMenuItem;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private GMap.NET.WindowsForms.GMapControl gmap;
         private System.Windows.Forms.ToolStripMenuItem saveTrajectoriesInKMLFormatToolStripMenuItem;

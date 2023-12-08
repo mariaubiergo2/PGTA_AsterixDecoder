@@ -201,7 +201,7 @@ namespace AsterixDecoder
                     }
 
                     //Funció per a decodificar la cat48 
-                    CAT048 element = new CAT048(FSPEC, datablock, i, 0, n_datarecord);
+                    CAT048 element = new CAT048(FSPEC, datablock, 0, n_datarecord);
 
                     if (element.TYP == "No detection" || element.TYP == "Single PSR detection" || element.TYP == "Single SSR detection" || element.TYP == "SSR+PSR detection" || element.Mode_3A == "7777")
                     { }
