@@ -62,5 +62,17 @@ It can be saved in any folder as a .csv file.
 
 
 
+# ASTERIX Ejecutable Instructions
+
+Due to severals technical issues, we can not provide you with a stable version of the setup. However, in the "Ejecutable - AsterixDecoderApp" folder you will find the "AsterixDecoder" application file, which has a different icon:
+
+
+![image](https://github.com/mariaubiergo2/PGTA_AsterixDecoder/assets/91792580/5cdcb36e-47ae-4d51-857c-8e3c223478b8)
+
+
+
+Run this version by just clicking on it, to test the decoder's capabilities.
+
+
 ## ENJOY!
 
