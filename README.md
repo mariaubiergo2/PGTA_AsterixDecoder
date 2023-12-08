@@ -2,7 +2,7 @@
 
 Welcome to the ASTERIX Hackathon! We're thrilled to show you our PGTA project, a coding challenge focused on developing an ASTERIX decoder for category 048. The primary objective is to create a robust decoder capable of exporting results to a CSV file from a binary file, which, besides visualization, will serve as valuable input data for future analysis, including Project 3.
 
-_Authors:_ Júlia Capella Campdepadrós, Paula Chalé Castell, Laia Costa Cid, Biel Gómez Crespo, David Movilla Cobo, Maria Ubiergo Gómez
+_Authors: Júlia Capella Campdepadrós, Paula Chalé Castell, Laia Costa Cid, Biel Gómez Crespo, David Movilla Cobo, Maria Ubiergo Gómez_
 
 ## Decoder functionalities
 
@@ -20,13 +20,3 @@ _Authors:_ Júlia Capella Campdepadrós, Paula Chalé Castell, Laia Costa Cid, B
    - Functionality to export flight trajectories to a KML file.
    - The KML file includes fight level or corrected height.
    - Foreach path in the KML the viewer can see the A/C ID, address, Mode 3A and TYP020.
-
-## Project Requirements
-
-- **Understanding of Information Meaning:**
-  - Interpret and extract relevant details from ASTERIX data.
-
-- **Knowledge of SSR+Mode S System:**
-  - Understand how an SSR and Mode S system work.
-
-
