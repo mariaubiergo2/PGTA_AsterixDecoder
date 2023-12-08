@@ -1,26 +1,32 @@
-# PGTA_AsterixSW
-EETAC project
+# ASTERIX HACKATHON README
 
-# Objectives
-Creation and development of an ASTERIX decoder for category 048 that is capable of exporting the results to a CSV file in the specified format. This exported file will be analyzable later on (for example, the input data for project 3).
+Welcome to the ASTERIX Hackathon! We're thrilled to show you our PGTA project, a coding challenge focused on developing an ASTERIX decoder for category 048. The primary objective is to create a robust decoder capable of exporting results to a CSV file from a binary file, which, besides visualization, will serve as valuable input data for future analysis, including Project 3.
 
-Additionally, in the developed software, flight paths can be visualized on a map and simulated over time. These trajectories can also be exported to a KML file.
+_Authors:_ Júlia Capella Campdepadrós, Paula Chalé Castell, Laia Costa Cid, Biel Gómez Crespo, David Movilla Cobo, Maria Ubiergo Gómez
 
-Furthermore, this project is not just a programming project; it requires an understanding of the meaning of the obtained information and knowledge of how an SSR+Mode S system works.
+## Decoder functionalities
 
-# Category 048
-Provides different data source sets:
-- PSR Radar SSR Radar
-- M-SSR Radar
-- Mode-S Station
+1. **ASTERIX Decoder:**
+   - Read a binary file in an understandable table format.
+   - Save the decoded information as a CSV.
 
-# Data Item
-For each Data Category there is a Catalogue of Dara Items standarised.
-Each Data Item has a unique reference that consists of an 8-character reference Innn/AAA:
-- I = Data Item
-- nnn = Data Category to which it belongs (000, 255)
-- AAA = Decimal number to indicate the data item
+2. **ASTERIX simulation:**
+   - View the binary CAT048 information of the flight paths on the map.
+   - Restart, pause and end the time-based simulation.
+   - Change velocities.
+   - Change map features.
 
-Data Items are assigned to a Data Field that have a integral number of octets referenced by a Field Reference Number (FRN)
-![image](https://github.com/mariaubiergo2/PGTA_AsterixSW/assets/91792580/9d267759-daa3-49a2-8517-39b7f67cb9ac)
+3. **ASTERIX KML extraction:**
+   - Functionality to export flight trajectories to a KML file.
+   - The KML file includes fight level or corrected height.
+   - Foreach path in the KML the viewer can see the A/C ID, address, Mode 3A and TYP020.
+
+## Project Requirements
+
+- **Understanding of Information Meaning:**
+  - Interpret and extract relevant details from ASTERIX data.
+
+- **Knowledge of SSR+Mode S System:**
+  - Understand how an SSR and Mode S system work.
+
 
